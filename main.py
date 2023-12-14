@@ -8,11 +8,14 @@ from email.mime.application import MIMEApplication
 st.title("Email Sender App")
 
 # Email configuration
-sender_email ="kashika.parmar@woxsen.edu.in"  # replace with your email
+sender_email = "kashika.parmar@woxsen.edu.in"  # replace with your email
 sender_password = "Fah32413"  # replace with your password
 
 # Input box for email content
 email_content = st.text_area("Enter your email content here:", "")
+
+# Input box for subject
+email_subject = st.text_input("Enter the subject of the email:", "")
 
 # Input box for recipient email addresses (comma-separated)
 recipient_emails = st.text_input("Enter recipient email addresses (comma-separated):", "")
@@ -35,7 +38,7 @@ if st.button("Send Emails"):
             msg = MIMEMultipart()
             msg["From"] = sender_email
             msg["To"] = recipient.strip()
-            msg["Subject"] = "Subject of the email"
+            msg["Subject"] = email_subject  # Use the user-provided subject
             body = email_content
             msg.attach(MIMEText(body, "plain"))
 
