@@ -18,18 +18,28 @@ email_content = st.text_area("Enter your email content here:", "")
 # Input box for subject
 email_subject = st.text_input("Enter the subject of the email:", "")
 
+# File uploader for attachments
+attachments = st.file_uploader("Upload Attachments (Optional)", type=["pdf", "csv", "xlsx", "jpg", "png", "txt"], accept_multiple_files=True)
+
 # Input box for CC email addresses (comma-separated)
 cc_emails = st.text_input("Enter CC email addresses (comma-separated):", "")
 
 xlsx_file = st.sidebar.file_uploader("Upload XLSX File", type=["xlsx"])
+
 # Button to send emails
 if st.button("Send Emails"):
     try:
         # Read XLSX file
         df = pd.read_excel(xlsx_file, engine='openpyxl')
 
-        # Extract email addresses from the "Father EmailId" column
+        # Extract father's email addresses from the "Father EmailId" column
         recipients = df["Father EmailId"].astype(str).tolist()
+
+        # Extract email addresses from the "Email Id" column
+        email_recipients = df["Email Id"].astype(str).tolist()
+
+        # Combine both lists of recipients
+        recipients += email_recipients
 
         # Splitting CC email addresses
         cc_recipients = [cc.strip() for cc in cc_emails.split(",")]
@@ -49,29 +59,26 @@ if st.button("Send Emails"):
             body = email_content
             msg.attach(MIMEText(body, "plain"))
 
+            # Attach uploaded files
+            if attachments:
+                for attachment in attachments:
+                    file_name = attachment.name
+                    attachment_content = attachment.read()
+                    file_part = MIMEApplication(attachment_content)
+                    file_part.add_header('Content-Disposition', f'attachment; filename="{file_name}"')
+                    msg.attach(file_part)
+
+            # Adding CC recipients
+            if cc_recipients:
+                msg["CC"] = ", ".join(cc_recipients)
+
             # Print email content and recipient email ID
             print(f"Email Content: {body}")
             print(f"Recipient Email ID: {recipient.strip()}")
 
-            # Send email
-            server.sendmail(sender_email, recipient.strip(), msg.as_string())
-
-        # Send emails to CC recipients
-        for cc_recipient in cc_recipients:
-            # Email content
-            cc_msg = MIMEMultipart()
-            cc_msg["From"] = sender_email
-            cc_msg["To"] = cc_recipient.strip()
-            cc_msg["Subject"] = email_subject  # Use the user-provided subject
-            cc_body = email_content
-            cc_msg.attach(MIMEText(cc_body, "plain"))
-
-            # Print email content and CC recipient email ID
-            print(f"Email Content: {cc_body}")
-            print(f"CC Recipient Email ID: {cc_recipient.strip()}")
-
-            # Send email
-            server.sendmail(sender_email, cc_recipient.strip(), cc_msg.as_string())
+            # Send email to main recipient and CC recipients
+            recipients_all = [recipient.strip()] + cc_recipients
+            server.sendmail(sender_email, recipients_all, msg.as_string())
 
         st.success("Emails sent successfully!")
 
