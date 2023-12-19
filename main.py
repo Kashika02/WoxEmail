@@ -162,8 +162,8 @@ elif selected_option == "Send Individual Email":
     st.write("Switch gears to the 'Send Individual Emails' section, Craft tailored messages with ease, ensuring your individual communications stand out.")
 
     # Email configuration
-    sender_email = "Woxsenuniversity@outlook.com"  # replace with your email
-    sender_password = "Woxsen@123"  # replace with your password
+    sender_email = "communication@woxsen.edu.in"  # replace with your email
+    sender_password = "Qul26826"  # replace with your password
 
     # Input box for email content
     email_content_individual = st.text_area("Enter your email content here:", "")
