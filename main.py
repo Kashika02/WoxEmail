@@ -7,46 +7,55 @@ import pandas as pd
 
 def send_individual_email(sender_email, sender_password, recipient_email, email_content, email_subject, attachments, cc_emails):
     try:
+    # Extract email addresses from the input
+        recipients = [email.strip() for email in recipient_email.split(",")]
+
+        # Splitting CC email addresses
+        cc_recipients = [cc.strip() for cc in cc_emails.split(",")] if cc_emails else []
+
         # SMTP setup
         server = smtplib.SMTP("smtp-mail.outlook.com", 587)
         server.starttls()
         server.login(sender_email, sender_password)
 
-        # Email content
-        msg = MIMEMultipart()
-        msg["From"] = sender_email
-        msg["To"] = recipient_email
-        msg["Subject"] = email_subject  # Use the user-provided subject
-        body = email_content
-        msg.attach(MIMEText(body, "plain"))
+        # Send emails to main recipients
+        for recipient in recipients:
+            # Email content
+            msg = MIMEMultipart()
+            msg["From"] = sender_email
+            msg["To"] = recipient.strip()
+            msg["Subject"] = email_subject  # Use the user-provided subject
+            body = email_content
+            msg.attach(MIMEText(body, "plain"))
 
-        # Attach uploaded files
-        if attachments:
-            for attachment in attachments:
-                file_name = attachment.name
-                attachment_content = attachment.read()
-                file_part = MIMEApplication(attachment_content)
-                file_part.add_header('Content-Disposition', f'attachment; filename="{file_name}"')
-                msg.attach(file_part)
+            # Attach uploaded files
+            if attachments:
+                for attachment in attachments:
+                    file_name = attachment.name
+                    attachment_content = attachment.read()
+                    file_part = MIMEApplication(attachment_content)
+                    file_part.add_header('Content-Disposition', f'attachment; filename="{file_name}"')
+                    msg.attach(file_part)
 
-        # Adding CC recipients
-        if cc_emails:
-            msg["CC"] = cc_emails
+            # Adding CC recipients
+            if cc_recipients:
+                msg["CC"] = ", ".join(cc_recipients)
 
-        # Print email content and recipient email ID
-        print(f"Email Content: {body}")
-        print(f"Recipient Email ID: {recipient_email}")
+            # Print email content and recipient email ID
+            print(f"Email Content: {body}")
+            print(f"Recipient Email ID: {recipient.strip()}")
 
-        # Send email to main recipient and CC recipients
-        recipients_all = [recipient_email] + [cc.strip() for cc in cc_emails.split(",")] if cc_emails else []
-        server.sendmail(sender_email, recipients_all, msg.as_string())
+            # Send email to main recipient and CC recipients
+            recipients_all = [recipient.strip()] + cc_recipients
+            server.sendmail(sender_email, recipients_all, msg.as_string())
 
-        st.success("Email sent successfully!")
+        st.success("Emails sent successfully!")
 
     except Exception as e:
         st.error(f"Error: {e}")
     finally:
         server.quit()
+
 
 
 # Function to send emails
@@ -153,11 +162,8 @@ elif selected_option == "Send Individual Email":
     st.write("Switch gears to the 'Send Individual Emails' section, Craft tailored messages with ease, ensuring your individual communications stand out.")
 
     # Email configuration
-    sender_email = st.text_input("Enter your email:")
-    sender_password = st.text_input("Enter your password:", type="password", key="password_key")
-
-    # Input box for recipient email
-    recipient_email = st.text_input("Enter recipient email address:", "")
+    sender_email = "Woxsenuniversity@outlook.com"  # replace with your email
+    sender_password = "Woxsen@123"  # replace with your password
 
     # Input box for email content
     email_content_individual = st.text_area("Enter your email content here:", "")
@@ -170,6 +176,9 @@ elif selected_option == "Send Individual Email":
 
     # Input box for CC email addresses (comma-separated)
     cc_emails_individual = st.text_input("Enter CC email addresses (comma-separated):", "")
+
+    # Input box for recipients' email addresses (comma-separated)
+    recipient_email = st.text_area("Enter recipients' email addresses (comma-separated):", "")
 
     # Button to send individual email
     if st.button("Send Individual Email"):
