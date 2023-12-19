@@ -136,10 +136,9 @@ elif selected_option == "Parent-Student Update":
     st.write("In the 'Parent-Student Update' section, experience the seamless flow of announcements and personalized communication.")
 
     # Email configuration
-    # Email configuration
-    sender_email = "Woxsenuniversity@outlook.com"  # replace with your email
-    sender_password = "Woxsen@123"  # replace with your password
-
+    sender_email = "communication@woxsen.edu.in"  # replace with your email
+    sender_password = "Qul26826"  # replace with your password
+    
     # Input box for email content
     email_content = st.text_area("Enter your email content here:", "")
 
